@@ -1,0 +1,7 @@
+__pycache__
+db/__pycache__
+db/data.db
+handlers/__pycache__
+other/__pycache__
+test.py
+testapi.py
