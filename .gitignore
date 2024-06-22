@@ -1,7 +1,8 @@
 __pycache__
 db/__pycache__
 db/data.db
+db/testdb.py
 handlers/__pycache__
 other/__pycache__
 test.py
-testapi.py
+config.toml

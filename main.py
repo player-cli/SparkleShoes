@@ -3,7 +3,7 @@
 # @2024
 
 import telebot
-import testapi
+import toml
 
 from db import database
 
@@ -17,29 +17,32 @@ from art import tprint
 
 # -- Init zone -- #
 
-bot = telebot.TeleBot(testapi.api)
-client = client_h.Client(bot)
-admin = admin_h.Admin(bot)
-db = database.DB()
+# config to tests
+cfg = toml.load("./config.toml")
+
+bot = telebot.TeleBot(cfg['api'])
+DB = database.DB()
+CL = client_h.Client(bot, DB._get_managers())
+ADM = admin_h.Admin(bot)
 
 # -- Main zone -- #
 
 @bot.message_handler(commands=['start'])
 def start_command(message):
-    admins = db._get_admins()
-    managers = db._get_managers()
-    users = db._get_users()
-    if message.chat.id not in admins and message.chat.id not in managers:
+    admin = cfg['admin_id']
+    managers = DB._get_managers()
+    users = DB._get_users()
+    if message.chat.id != admin and message.chat.id not in managers:
 
         if message.chat.id in users:
-            bot.send_message(message.chat.id, text=botsay.start + botsay.add, reply_markup=keyboard.startup_keyboard)
+            bot.send_message(message.chat.id, text=botsay.start, reply_markup=keyboard.startup_keyboard)
         else:
-            db._add_user(message.chat.username, message.chat.id)
-            bot.send_message(message.chat.id, text=botsay.start + botsay.add, reply_markup=keyboard.startup_keyboard)
+            DB._add_user(message.chat.id)
+            bot.send_message(message.chat.id, text=botsay.start, reply_markup=keyboard.startup_keyboard)
 
-    if message.chat.id not in admins and message.chat.id in managers and message.chat.id not in users:
+    if message.chat.id in managers:
         bot.send_message(message.chat.id, text="Вы являетесь менеджером!", reply_markup=keyboard.manager_startup_keyboard)
-    else:
+    if message.chat.id == admin:
         bot.send_message(message.chat.id, text="Вы являетесь администратором!", reply_markup=keyboard.admin_startup_keyboard)
     
 
@@ -48,16 +51,16 @@ def start_command(message):
 @bot.message_handler(content_types=['text'])
 def client_handlers(message):
     m = message.text
+    managers = DB._get_managers()
     match(m):
-        case "Заказать самостоятельно":
-            pass
-        case "Заказать с помощью менеджера":
-            pass
+        case "Заказать самому":
+            CL._self_order(message)
+        case "Заказать вместе с менеджером":
+            CL._manager_order(message)
         case "Химчистка":
-            pass
+            CL._shoes_clean(message)
         case "Задать вопрос":
-            pass
-
+            CL._qa(message)
         case _:
             bot.send_message(message.chat.id, text = "Нет такой команды")
 
