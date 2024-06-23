@@ -18,14 +18,12 @@ from art import tprint
 # -- Init zone -- #
 
 # config to tests
-cfg = toml.load("./config.toml")
 
+cfg = toml.load("./config.toml")
 bot = telebot.TeleBot(cfg['api'])
 DB = database.DB()
-CL = client_h.Client(bot, [x[1] for x in DB._get_managers()])
+CL = client_h.Client(bot, DB._get_managers())
 MNG = manager_h.Manager(bot)
-
-BAN = DB._get_banned_users()
 
 # -- Main zone -- #
 
@@ -33,6 +31,7 @@ BAN = DB._get_banned_users()
 def start_command(message):
     managers = DB._get_managers()
     users = DB._get_users()
+    BAN = DB._get_banned_users()
     if message.chat.id not in BAN:
         if message.chat.id not in managers:
 
@@ -45,7 +44,7 @@ def start_command(message):
                     DB._add_user(message.chat.id, "@" + message.from_user.username)
                     bot.send_message(message.chat.id, text=botsay.start, reply_markup=keyboard.startup_keyboard)
 
-        if message.chat.id in [i[1] for i in managers]:
+        else:
             bot.send_message(message.chat.id, text="Вы являетесь менеджером!", reply_markup=keyboard.manager_startup_keyboard)
     else:
         bot.send_message(message.chat.id, "Вы не можете писать в этот бот, вы забанены!")
@@ -59,7 +58,10 @@ def faq_command(message):
 @bot.message_handler(content_types=['text'])
 def client_handlers(message):
     m = message.text
-    if message.chat.id not in [x[1] for x in DB._get_managers()]:
+    BAN = DB._get_banned_users()
+    if message.chat.id in BAN:
+        bot.send_message(message.chat.id, text = "Вы забанены! ")
+    if message.chat.id not in DB._get_managers() and message.chat.id not in BAN:
         match(m):
             case "Заказать самому":
                 CL._self_order(message)
@@ -71,10 +73,9 @@ def client_handlers(message):
                 CL._qa(message)
             case _:
                 bot.send_message(message.chat.id, text = "Нет такой команды")
+    
     else:
         match(m):
-            case "Найти пользователя":
-                MNG._search_user(message)
             case "Забанить пользователя":
                 MNG._ban_user(message)        
 
@@ -82,7 +83,7 @@ def client_handlers(message):
 # -- Startup zone -- #
 
 def main() -> int:
-    tprint("PLAYER BOT")
+    tprint("SPARKLESHOES")
     bot.polling()
     return 1
 

@@ -7,5 +7,4 @@ startup_keyboard.row(types.KeyboardButton(text='Химчистка'))
 startup_keyboard.row(types.KeyboardButton(text='Задать вопрос'))
 
 manager_startup_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-manager_startup_keyboard.row(types.KeyboardButton('Найти пользователя'))
 manager_startup_keyboard.row(types.KeyboardButton('Забанить пользователя'))

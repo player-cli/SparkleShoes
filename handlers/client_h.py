@@ -21,10 +21,10 @@ class Client:
 
     def _shoes_clean(self, message):
         self.bot.send_message(message.chat.id, botsay.shoesclean, reply_markup = keyboard.startup_keyboard)
-        self.bot.send_message(random.choice(self.managers), text = f"Заявка по кроссовкам от @{message.from_user.username}")
+        self.bot.send_message(self.managers[0], text = f"Заявка по кроссовкам от @{message.from_user.username}")
 
     def _qa(self, message):
-        self.bot.send_message(message.chat.id, botsay.help + random.choice(self.managers)[2], reply_markup = keyboard.startup_keyboard)
+        self.bot.send_message(message.chat.id, botsay.help, reply_markup = keyboard.startup_keyboard)
 
     def __forward_to_manager(self, message):
         self.bot.forward_message(random.choice(self.managers), message.chat.id, message.message_id)
