@@ -12,7 +12,7 @@ class DB:
         return [x[1] for x in row]
 
 
-    def _get_users(self):
+    def _get_users(self) -> list:
         self.cursor.execute("SELECT * FROM 'users'")
         row = self.cursor.fetchall()
         return [x for x in row]
