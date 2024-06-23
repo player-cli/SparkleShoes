@@ -6,6 +6,6 @@ startup_keyboard.row(types.KeyboardButton(text='Заказать вместе с
 startup_keyboard.row(types.KeyboardButton(text='Химчистка'))
 startup_keyboard.row(types.KeyboardButton(text='Задать вопрос'))
 
-admin_startup_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-admin_startup_keyboard.row(types.KeyboardButton('Управление менеджерами'))
-admin_startup_keyboard.row(types.KeyboardButton('Статистика'))
+manager_startup_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+manager_startup_keyboard.row(types.KeyboardButton('Найти пользователя'))
+manager_startup_keyboard.row(types.KeyboardButton('Забанить пользователя'))

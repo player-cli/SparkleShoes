@@ -8,7 +8,7 @@ import toml
 from db import database
 
 from handlers import client_h
-from handlers import admin_h
+from handlers import manager_h
 
 from other import keyboard
 from other import botsay
@@ -23,35 +23,42 @@ cfg = toml.load("./config.toml")
 bot = telebot.TeleBot(cfg['api'])
 DB = database.DB()
 CL = client_h.Client(bot, DB._get_managers())
-ADM = admin_h.Admin(bot)
+MNG = manager_h.Manager(bot)
+
+BAN = DB._get_banned_users()
 
 # -- Main zone -- #
 
 @bot.message_handler(commands=['start'])
 def start_command(message):
-    admin = cfg['admin_id']
     managers = DB._get_managers()
     users = DB._get_users()
-    if message.chat.id != admin and message.chat.id not in managers:
+    if message.chat.id not in BAN:
+        if message.chat.id not in managers:
 
-        if message.chat.id in users:
-            bot.send_message(message.chat.id, text=botsay.start, reply_markup=keyboard.startup_keyboard)
-        else:
-            DB._add_user(message.chat.id)
-            bot.send_message(message.chat.id, text=botsay.start, reply_markup=keyboard.startup_keyboard)
+            if not message.from_user.username:
+                bot.send_message(message.chat.id, "Для работы бота вам нужно установить user id! ")
+            else:
+                if message.chat.id in users:
+                    bot.send_message(message.chat.id, text=botsay.start, reply_markup=keyboard.startup_keyboard)
+                else:
+                    DB._add_user(message.chat.id, "@" + message.from_user.username)
+                    bot.send_message(message.chat.id, text=botsay.start, reply_markup=keyboard.startup_keyboard)
 
-    if message.chat.id in managers:
-        bot.send_message(message.chat.id, text="Вы являетесь менеджером!", reply_markup=keyboard.manager_startup_keyboard)
-    if message.chat.id == admin:
-        bot.send_message(message.chat.id, text="Вы являетесь администратором!", reply_markup=keyboard.admin_startup_keyboard)
+        if message.chat.id in [i[1] for i in managers]:
+            bot.send_message(message.chat.id, text="Вы являетесь менеджером!", reply_markup=keyboard.manager_startup_keyboard)
+    else:
+        bot.send_message(message.chat.id, "Вы не можете писать в этот бот, вы забанены!")
     
+@bot.message_handler(commands=['faq'])
+def faq_command(message):
+    bot.send_message(message.chat.id, botsay.faq)
 
 # -- Client zone -- #
 
 @bot.message_handler(content_types=['text'])
 def client_handlers(message):
     m = message.text
-    managers = DB._get_managers()
     match(m):
         case "Заказать самому":
             CL._self_order(message)
