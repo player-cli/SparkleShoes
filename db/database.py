@@ -32,13 +32,16 @@ class DB:
     def _ban_user(self, id: int) -> None:
         if id in [i[0] for i in self._get_users()]:
             users = self._get_users()
-            self.cursor.execute("INSERT INTO banned (chat_id, username) VALUES (?, ?)", (users[id-1][1], users[id-1][2]))
-            self.cursor.execute("REMOVE FROM users WHERE id = (?)", (id))
+            index_arr = [x[0] for x in users].index(id)
+            self.cursor.execute("INSERT INTO banned (chat_id, username) VALUES (?, ?)", (users[index_arr][1], users[index_arr][2]))
+            self.cursor.execute("DELETE FROM users WHERE id = (?)", (id,))
             self.db.commit()
 
     def _get_banned_users(self) -> list:
         self.cursor.execute("SELECT * FROM 'banned'")
         row = self.cursor.fetchall()
         return [x[1] for x in row]
+    
+    
 
     

@@ -22,7 +22,7 @@ cfg = toml.load("./config.toml")
 
 bot = telebot.TeleBot(cfg['api'])
 DB = database.DB()
-CL = client_h.Client(bot, DB._get_managers())
+CL = client_h.Client(bot, [x[1] for x in DB._get_managers()])
 MNG = manager_h.Manager(bot)
 
 BAN = DB._get_banned_users()
@@ -54,28 +54,30 @@ def start_command(message):
 def faq_command(message):
     bot.send_message(message.chat.id, botsay.faq)
 
-# -- Client zone -- #
+# -- Handlers zone -- #
 
 @bot.message_handler(content_types=['text'])
 def client_handlers(message):
     m = message.text
-    match(m):
-        case "Заказать самому":
-            CL._self_order(message)
-        case "Заказать вместе с менеджером":
-            CL._manager_order(message)
-        case "Химчистка":
-            CL._shoes_clean(message)
-        case "Задать вопрос":
-            CL._qa(message)
-        case _:
-            bot.send_message(message.chat.id, text = "Нет такой команды")
+    if message.chat.id not in [x[1] for x in DB._get_managers()]:
+        match(m):
+            case "Заказать самому":
+                CL._self_order(message)
+            case "Заказать вместе с менеджером":
+                CL._manager_order(message)
+            case "Химчистка":
+                CL._shoes_clean(message)
+            case "Задать вопрос":
+                CL._qa(message)
+            case _:
+                bot.send_message(message.chat.id, text = "Нет такой команды")
+    else:
+        match(m):
+            case "Найти пользователя":
+                MNG._search_user(message)
+            case "Забанить пользователя":
+                MNG._ban_user(message)        
 
-# -- Admin zone -- #
-
-@bot.message_handler(content_types=['text'])
-def admin_handlers(message):
-    pass
 
 # -- Startup zone -- #
 
