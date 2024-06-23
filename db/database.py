@@ -9,7 +9,7 @@ class DB:
     def _get_managers(self) -> list:
         self.cursor.execute("SELECT * FROM managers")
         row = self.cursor.fetchall()
-        return [x for x in row]
+        return [x[1] for x in row]
 
 
     def _get_users(self):
