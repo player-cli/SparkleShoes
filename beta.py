@@ -38,7 +38,7 @@ def start_command(message):
             if not message.from_user.username:
                 bot.send_message(message.chat.id, "Для работы бота вам нужно установить user id! ")
             else:
-                if message.chat.id in users:
+                if message.chat.id in [i[1] for i in users]:
                     bot.send_message(message.chat.id, text=botsay.start, reply_markup=keyboard.startup_keyboard)
                 else:
                     DB._add_user(message.chat.id, "@" + message.from_user.username)

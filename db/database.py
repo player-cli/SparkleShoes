@@ -29,12 +29,12 @@ class DB:
             else:
                 return "Нет такого пользователя!"
 
-    def _ban_user(self, id: int) -> None:
-        if id in [i[0] for i in self._get_users()]:
+    def _ban_user(self, username: str) -> None:
+        if username in [i[2] for i in self._get_users()]:
             users = self._get_users()
-            index_arr = [x[0] for x in users].index(id)
+            index_arr = [x[2] for x in users].index(username)
             self.cursor.execute("INSERT INTO banned (chat_id, username) VALUES (?, ?)", (users[index_arr][1], users[index_arr][2]))
-            self.cursor.execute("DELETE FROM users WHERE id = (?)", (id,))
+            self.cursor.execute("DELETE FROM users WHERE username = (?)", (username,))
             self.db.commit()
 
     def _get_banned_users(self) -> list:

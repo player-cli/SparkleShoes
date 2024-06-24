@@ -14,6 +14,5 @@ class Manager:
 
     def _ban_user_func(self, message):
         username = message.text
-        user_id = self.DB._search_user(username)
-        self.DB._ban_user(user_id)
+        self.DB._ban_user(username)
         self.bot.send_message(message.chat.id, text = f"Пользователь {username} забанен")
