@@ -80,6 +80,10 @@ def client_handlers(message):
                 MNG._ban_user(message)        
 
 
+@bot.message_handler(content_types=['sticker'])
+def heart(message):
+    bot.reply_to(message, '❤️')
+
 # -- Startup zone -- #
 
 def main() -> int:
